@@ -5,7 +5,7 @@ mpgPredict <- function(input) {
     # The training data set will be mtcars, provided by R.
     
     library(dplyr)
-    library(scatterplot3d)
+    library(ggplot2)
     
     data <- mtcars
     data <- tbl_df(data) # Makes the algorithm run faster (C++ implementation)
@@ -33,9 +33,12 @@ mpgPredict <- function(input) {
     ## The gradient descent loop should start here..! Don't know which conditions
     ## to establish for convergence situation...let's use a simple 1 to 10
     
+    n_of_it = NULL
+    J_values = NULL
+    
     i <- 1
     
-    while(i < 109) {
+    while(i < 200) { ## Right now ideal value is 109
     
         data <- mutate(data, h_x = th_0 + th_1 * data$hp) ## We now add the first 
                                                           ## estimation of y, h(x)
@@ -55,6 +58,14 @@ mpgPredict <- function(input) {
         th_0 <- temp_0
         th_1 <- temp_1
         
+        ## To make a plot of the value of J depending on iterations, we would
+        ## have to make a data frame including in the x vector the number of 
+        ## iterations (filling it with i), and filling y with the values of
+        ## costFunction_j:
+        
+        n_of_it[i] <- i
+        J_values[i] <- costFunction_J
+        
         i <- i + 1
         
         ##print(costFunction_J)
@@ -66,6 +77,14 @@ mpgPredict <- function(input) {
     ## J = 0.08864. 
     
     ## To do: plot the two graphs and code the prediction function for an input
+    
+    
+    dat <- data.frame(NumIter = n_of_it, JVals = J_values)
+    
+    q <- ggplot(dat, aes(x = NumIter, y = JVals)) 
+    q <- q + geom_hline(yintercept = 0) + geom_line(size = 1.5)
+    q <- q + labs(x = "Number of observations", y = "Value of Cost Function J")
+    print(q)
     
     print(paste("The prediction for your hp input", input, "is", th_0 + th_1 * input, "mpg"))
     
